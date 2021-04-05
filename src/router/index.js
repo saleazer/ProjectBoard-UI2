@@ -1,6 +1,10 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import store from '../store'
 import Home from '../views/Home.vue'
+import LoginPage from '../views/LoginPage.vue'
+import UserHome from '../views/UserHome.vue'
+import ProjectPage from '../views/ProjectPage.vue'
 
 Vue.use(VueRouter)
 
@@ -9,6 +13,16 @@ const routes = [
     path: '/',
     name: 'Home',
     component: Home
+  },
+  {
+    path: '/user-home',
+    name: 'UserHome',
+    component: UserHome
+  },
+  {
+    path: '/project/:id',
+    name: 'ProjectPage',
+    component: ProjectPage
   },
   {
     path: '/about',
@@ -22,6 +36,12 @@ const routes = [
 
 const router = new VueRouter({
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  if (to.name !== LoginPage && !store.getters.isAuthenticated) {
+    next({ name: LoginPage })
+  } else next()
 })
 
 export default router
