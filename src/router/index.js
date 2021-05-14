@@ -5,6 +5,8 @@ import Home from '../views/Home.vue'
 import LoginPage from '../views/LoginPage.vue'
 import UserHome from '../views/UserHome.vue'
 import ProjectPage from '../views/ProjectPage.vue'
+import RegisterPage from '../views/RegisterPage.vue'
+import Backlog from '../views/Backlog.vue'
 
 Vue.use(VueRouter)
 
@@ -25,8 +27,18 @@ const routes = [
     component: ProjectPage
   },
   {
+    path: '/backlog',
+    name: 'Backlog',
+    component: Backlog
+  },
+  {
+    path: '/register',
+    name: 'RegisterPage',
+    component: RegisterPage
+  },
+  {
     path: '/about',
-    name: 'About',
+    name: 'AboutPage',
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.

@@ -9,7 +9,6 @@ const store = new Vuex.Store({
     return {
       currentUser: null,
       currentProject: null,
-      currentProjectId: null,
       allUserProjects: null,
       token: null
     }
@@ -29,7 +28,21 @@ const store = new Vuex.Store({
       return state.currentProject
     },
     currentProjectId (state) {
-      return state.currentProjectId
+      if (state.currentProject == null) {
+        return null
+      } else {
+        return state.currentProject._id
+      }
+    },
+    currentUser (state) {
+      return state.currentUser
+    },
+    currentUserID (state) {
+      if (state.currentUser == null) {
+        return null
+      } else {
+        return state.currentUser._id
+      }
     }
   },
 
@@ -42,15 +55,23 @@ const store = new Vuex.Store({
     },
     setCurrentProject (state, id) {
       state.currentProject = state.allUserProjects.find(project => project._id === id)
-      state.currentProjectId = id
+    },
+    setNewCurrentProject (state, project) {
+      state.currentProject = project
+    },
+    clearCurrentProject (state) {
+      state.currentProject = null
     },
     setAllUserProjects (state, projects) {
       state.allUserProjects = projects
     },
-    clearCurrentUser (state) {
+    logout (state) {
       state.currentUser = null
-      state.token = null
+      state.currentUserID = null
+      state.currentProject = null
+      state.currentProjectId = null
       state.allUserProjects = null
+      state.token = null
     }
   },
   actions: {

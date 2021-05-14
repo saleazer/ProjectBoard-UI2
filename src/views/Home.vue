@@ -1,8 +1,8 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
+  <div id='app' class='background'>
     <LoginPage />
   </div>
+
 </template>
 
 <script>
@@ -13,6 +13,16 @@ export default {
   name: 'Home',
   components: {
     LoginPage
+  },
+  methods: {
+    reRouteAuthenticated: function () {
+      if (this.$store.getters.isAuthenticated) {
+        this.$router.push('user-home')
+      }
+    }
+  },
+  beforeMount () {
+    this.reRouteAuthenticated()
   }
 }
 </script>

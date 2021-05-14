@@ -1,20 +1,23 @@
 <template>
   <nav>
-    <v-app-bar app clipped-left color='teal lighten-4' dense>
-        <v-row class='pl-2'>
-          <v-col cols='1'>
-            <v-btn @click='drawer = !drawer' v-if='this.$store.getters.isAuthenticated'></v-btn>
-          </v-col>
-          <v-col cols='9'>
-            <h4>Project Board</h4><small>v1.0</small>
+    <v-app-bar app clipped-left color='#d5d5d5'>
+        <v-row class='pl-2' align='center'>
+          <div v-if='this.$store.getters.isAuthenticated'>
+              <v-icon v-if='!drawer' @click='drawer = !drawer' large color='teal'>mdi-menu</v-icon>
+              <v-icon v-if='drawer' @click='drawer = !drawer' large color='teal'>mdi-backburger</v-icon>
+          </div>
+          <v-col md='10' sm='8' xs='2'>
+            <h3>Project Board</h3><small>v1.0</small>
               <small> built by Steph</small>
           </v-col>
-          <v-col>
+          <v-col v-if='this.$store.getters.isAuthenticated'>
             <v-btn @click='logoutUser'>Logout</v-btn>
           </v-col>
         </v-row>
     </v-app-bar>
-    <v-navigation-drawer app clipped
+    <v-navigation-drawer app
+      v-if='this.$store.getters.isAuthenticated'
+      clipped
       left
       v-model='drawer'
       color='#1c1c1c'
@@ -52,7 +55,6 @@ export default {
       items: [
         { title: 'Home', icon: 'mdi-view-dashboard', link: '/user-home' },
         { title: 'Backlog', icon: 'mdi-image', link: '/backlog' },
-        { title: 'Help', icon: 'mdi-help-box', link: '/help' },
         { title: 'About', icon: 'mdi-help-box', link: '/about' }
       ]
     }
@@ -60,13 +62,13 @@ export default {
 
   methods: {
     logoutUser: async function () {
-      await axios.post('//localhost:8089/users/logout', {}, {
+      await axios.post('https://whispering-cliffs-53295.herokuapp.com/users/logout', {}, {
         headers: {
           Authorization: 'Bearer ' + this.$store.getters.currentToken
         }
       })
       localStorage.removeItem('user-token')
-      this.$store.commit('clearCurrentUser', null)
+      this.$store.commit('logout', null)
       this.toLoginPage()
     },
     toLoginPage: function () {
@@ -74,5 +76,11 @@ export default {
     }
   }
 }
-
 </script>
+
+<style scoped>
+
+.app-bar {
+  background-color: grey;
+}
+</style>

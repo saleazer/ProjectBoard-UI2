@@ -1,7 +1,16 @@
 <template>
-<div id='app' class='work-area'>
-  <h2 style='text-align: center'>Login</h2>
+<div id='app' class='background'>
+<div class='work-area'>
+  <h2 style='text-align: center'>Register Below</h2>
   <v-form class='form'>
+    <v-row>
+        <v-col>
+            <v-text-field
+            v-model='user.givenName'
+            label='name'
+            ></v-text-field>
+        </v-col>
+    </v-row>
     <v-row>
         <v-col>
           <v-text-field
@@ -17,32 +26,25 @@
         :append-icon="showPW ? 'mdi-eye' : 'mdi-eye-off'"
         :type="showPW ? 'text' : 'password'"
         @click:append='showPW = !showPW'
-        v-on:keyup.enter="loginUser"
         label='password'
         >
         </v-text-field>
         </v-col>
-    </v-row> <br>
-  <v-btn @click='loginUser'>Login</v-btn>
+    </v-row>
+    <v-row class='bottom-line'>
+        <v-btn @click='createUser'>Create</v-btn>
+        <v-spacer></v-spacer>
+        <v-btn @click='toLoginPage'>back to Login</v-btn>
+    </v-row>
 </v-form>
-<v-divider></v-divider>
-<v-row class='signup-line'>
-    <v-col>
-      <p style='text-align: right; padding-top:8px'>Not a member?  Register in just a few clicks!</p>
-    </v-col>
-    <v-col cols='2'>
-      <v-btn @click='toRegisterPage'>Sign Up</v-btn>
-    </v-col>
-  </v-row>
-  <v-divider></v-divider>
 </div>
-
+</div>
 </template>
 
 <script>
 import axios from 'axios'
 export default {
-  name: 'LoginPage',
+  name: 'RegisterPage',
   props: {
   },
 
@@ -50,28 +52,30 @@ export default {
     return {
       showPW: false,
       user: {
+        givenName: '',
         username: '',
         password: ''
       }
     }
   },
   methods: {
-    loginUser: async function () {
+    createUser: async function () {
       try {
-        const response = await axios.post('https://whispering-cliffs-53295.herokuapp.com/users/login', { username: this.user.username, password: this.user.password })
+        const response = await axios.post('https://whispering-cliffs-53295.herokuapp.com/users', { name: this.user.givenName, username: this.user.username, password: this.user.password })
         const token = response.data.token
         localStorage.setItem('user-token', token)
         const user = response.data.user
-        this.$store.commit('setCurrentUser', user)
+        this.$store.commit('setCurrentUser', user.name)
         this.$store.commit('setCurrentToken')
         this.$router.push('user-home')
       } catch (e) {
-        alert('Please enter valid credentials')
+        console.log(e)
       }
     },
-    toRegisterPage: function () {
-      this.$router.push('/register')
+    toLoginPage: function () {
+      this.$router.push('/')
     }
+
   }
 }
 </script>
@@ -79,11 +83,11 @@ export default {
 <style scoped>
 
 .form {
-  padding: 40px 0px 40px 0px;
+  padding: 40px 0px 10px 0px;
 }
 
-.signup-line {
-  padding: 10px 30px 10px 30px;
+.bottom-line {
+  padding: 20px 10px 0px 10px;
   font-weight: 600;
   font-style: italic;
   font-size: 13pt;
