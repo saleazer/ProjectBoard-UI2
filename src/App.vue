@@ -32,6 +32,13 @@
   border-radius: 15px;
   padding: 30px 30px;
 }
+.work-area2 {
+  background-color: lightgrey;
+  opacity: 0.93;
+  border-radius: 15px;
+  padding: 30px 30px;
+  max-width: 550px;
+}
 .item.Low {
   border-left: 4px solid lightblue;
 }
@@ -54,7 +61,7 @@
   padding: 40px 0px 40px 0px;
 }
 .signup-line {
-  padding: 10px 30px 10px 30px;
+  padding: 10px 30px 0px 30px;
   font-weight: 600;
   font-style: italic;
   font-size: 13pt;

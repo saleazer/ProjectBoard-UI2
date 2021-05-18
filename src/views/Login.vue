@@ -2,7 +2,6 @@
   <div id='app' class='background'>
     <div class='work-area'>
       <h2 style='text-align: center'>Login</h2>
-      <v-form class='form'>
         <v-row>
           <v-col>
             <v-text-field v-model='user.username' label='username'></v-text-field>
@@ -15,9 +14,8 @@
             ></v-text-field>
           </v-col>
         </v-row>
-        <br>
         <v-btn @click='loginUser'>Login</v-btn>
-      </v-form>
+        <br><br>
       <v-divider></v-divider>
       <v-row class='signup-line'>
         <v-col>
@@ -28,6 +26,12 @@
         </v-col>
       </v-row>
       <v-divider></v-divider>
+    </div>
+    <br>
+    <div class='work-area2'>
+          <p><i><b>Interested in taking a look around?</b></i><br>
+          Login with the following credentials to see an account in action.</p>
+          <p><b>Username:</b> janedoe<br><b>Password:</b> janelogin</p>
     </div>
   </div>
 </template>
