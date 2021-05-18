@@ -16,6 +16,7 @@ const store = new Vuex.Store({
   // Prevents store from clearing during browser refresh
   plugins: [createPersistedState()],
 
+  // Options to get data from the store
   getters: {
     isAuthenticated: state => !!state.token,
     currentToken (state) {
@@ -46,6 +47,7 @@ const store = new Vuex.Store({
     }
   },
 
+  // Options to change the data in the store
   mutations: {
     setCurrentUser (state, user) {
       state.currentUser = user
@@ -67,9 +69,7 @@ const store = new Vuex.Store({
     },
     logout (state) {
       state.currentUser = null
-      state.currentUserID = null
       state.currentProject = null
-      state.currentProjectId = null
       state.allUserProjects = null
       state.token = null
     }

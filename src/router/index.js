@@ -1,48 +1,49 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import store from '../store'
-import Home from '../views/Home.vue'
-import LoginPage from '../views/LoginPage.vue'
+import Login from '../views/Login.vue'
 import UserHome from '../views/UserHome.vue'
-import ProjectPage from '../views/ProjectPage.vue'
-import RegisterPage from '../views/RegisterPage.vue'
+import ProjectHome from '../views/ProjectHome.vue'
+import Register from '../views/Register.vue'
 import Backlog from '../views/Backlog.vue'
+import About from '../views/About.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home
+    name: 'Login',
+    component: Login
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: Register
   },
   {
     path: '/user-home',
     name: 'UserHome',
-    component: UserHome
+    component: UserHome,
+    meta: { requiresAuth: true }
   },
   {
     path: '/project/:id',
-    name: 'ProjectPage',
-    component: ProjectPage
+    name: 'ProjectHome',
+    component: ProjectHome,
+    meta: { requiresAuth: true }
   },
   {
     path: '/backlog',
     name: 'Backlog',
-    component: Backlog
-  },
-  {
-    path: '/register',
-    name: 'RegisterPage',
-    component: RegisterPage
+    component: Backlog,
+    meta: { requiresAuth: true }
   },
   {
     path: '/about',
     name: 'AboutPage',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    component: About,
+    meta: { requiresAuth: true }
   }
 ]
 
@@ -51,9 +52,17 @@ const router = new VueRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  if (to.name !== LoginPage && !store.getters.isAuthenticated) {
-    next({ name: LoginPage })
-  } else next()
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (!store.getters.isAuthenticated) {
+      next({
+        path: '/',
+        query: { redirect: to.fullPath }
+      })
+    } else {
+      next()
+    }
+  } else {
+    next()
+  }
 })
-
 export default router

@@ -3,20 +3,18 @@
     <div class='work-area'>
       <v-row justify='space-between'>
         <v-col md='6' sm= '8' xs='12'>
-          <v-card class='padding'>
+          <v-card class='padding'> <!-- *I need to re-use ProjectCard component here instead* -->
             <v-row dense>
               <v-col>
                 <v-card-title>{{this.currentProject.title}}</v-card-title>
               </v-col>
               <v-col cols='1' >
-                <EditProject v-bind:project='currentProject' @board-update='getProjectItems'/>
+                <EditProject v-bind:project='currentProject' @board-update='setCurrentProject'/>
               </v-col>
             </v-row>
             <v-row dense>
               <v-col cols='11'>
-                <v-card-text>
-                  {{this.currentProject.description}}
-                </v-card-text>
+                <v-card-text>{{this.currentProject.description}}</v-card-text>
               </v-col>
               <v-col cols='1' align-self='end'>
                 <v-dialog v-model="dialog" persistent max-width="600">
@@ -29,9 +27,7 @@
                     </v-tooltip>
                   </template>
                     <v-card>
-                      <v-card-title class="headline">
-                        Delete {{this.$store.getters.currentProject.title}} Project?
-                      </v-card-title>
+                      <v-card-title class="headline"> Delete {{this.$store.getters.currentProject.title}} Project?</v-card-title>
                       <v-card-text>WARNING! Deleting this project will delete all associated board items. Do you wish to continue?</v-card-text>
                       <v-card-actions>
                         <v-spacer></v-spacer>
@@ -54,7 +50,11 @@
       </v-row>
       <br>
       <v-divider></v-divider>
-      <h3 class='padding'>Board Items</h3>
+        <v-row>
+          <h3 class='pa-4'>Board Items</h3>
+          <v-spacer></v-spacer>
+          <p class='pt-4 pr-6'><i>Drag items to change status</i></p>
+        </v-row>
       <v-divider></v-divider>
       <br>
       <v-row>
@@ -68,18 +68,18 @@
             </div>
           </draggable>
         </v-col>
-          <v-divider vertical></v-divider>
+        <v-divider vertical></v-divider>
         <v-col cols='5'>
           <h3>Active</h3>
           <draggable v-model='activeItems' group='new' @change='addActive' class='drag-column'>
-              <div v-for='item in activeItems' :key='item._id' class='padding'>
-                <v-card>
-                  <BoardItem @board-update='getProjectItems' v-bind:item='item'/>
-                </v-card>
-              </div>
+            <div v-for='item in activeItems' :key='item._id' class='padding'>
+              <v-card>
+                <BoardItem @board-update='getProjectItems' v-bind:item='item'/>
+              </v-card>
+            </div>
           </draggable>
         </v-col>
-          <v-divider vertical></v-divider>
+        <v-divider vertical></v-divider>
         <v-col cols='2' class='hidden-sm-and-down'>
           <h3>Complete</h3>
           <draggable v-model='completeItems' group='new' @change='addComplete' class='drag-column'>
@@ -96,16 +96,18 @@
 </template>
 
 <script>
-import axios from 'axios'
 import draggable from 'vuedraggable'
-import AddItem from '../components/AddItem'
-import BoardItem from '../components/BoardItem'
-import BoardItemSmall from '../components/BoardItemSmall'
-import DeleteProject from '../components/DeleteProject'
-import EditProject from '../components/EditProject'
+import AddItem from '../components/item/AddItem'
+import BoardItem from '../components/item/BoardItem'
+import BoardItemSmall from '../components/item/BoardItemSmall'
+import DeleteProject from '../components/project/DeleteProject'
+import EditProject from '../components/project/EditProject'
+import itemServices from '../services/itemServices'
+import projectServices from '../services/projectServices'
 
 export default {
-  name: 'ProjectPage',
+  name: 'ProjectHome',
+  mixins: [itemServices, projectServices],
   components: {
     AddItem,
     BoardItem,
@@ -114,88 +116,19 @@ export default {
     EditProject,
     draggable
   },
-  props: {
-    item: {
-      type: Object
-    }
-  },
   data () {
     return {
       newItems: [],
       activeItems: [],
       completeItems: [],
       emptyProject: false,
-      dialog: false
+      dialog: false,
+      currentProjectEdit: this.currentProject
     }
   },
   computed: {
     currentProject () {
       return this.$store.getters.currentProject
-    }
-
-  },
-  methods: {
-    setCurrentProject: function () {
-      this.$store.commit('setCurrentProject', this.$route.params.id)
-    },
-    getProjectItems: async function () {
-      try {
-        this.newItems = []
-        this.activeItems = []
-        this.completeItems = []
-        const parentID = this.$store.getters.currentProjectId
-        const response = await axios.get('https://whispering-cliffs-53295.herokuapp.com/board-item/byParent/' + parentID, {
-          headers: {
-            Authorization: 'Bearer ' + this.$store.getters.currentToken
-          }
-        })
-        if (response.data == null) {
-          this.emptyProject = true
-        } else {
-          const data = Object.values(response.data)
-          data.forEach(this.sortByStatus)
-        }
-      } catch (e) {
-        console.log(e)
-      }
-    },
-    sortByStatus: function (item) {
-      if (item.state === 'New') {
-        this.newItems.push(item)
-      } else if (item.state === 'Active') {
-        this.activeItems.push(item)
-      } else if (item.state === 'Complete') {
-        this.completeItems.push(item)
-      }
-    },
-    itemMoved: function (evt, state) {
-      if (evt.added !== undefined) {
-        evt.added.element.state = state
-        this.saveBoardItem(evt.added.element)
-      }
-    },
-    addNew: function (evt) {
-      this.itemMoved(evt, 'New')
-    },
-    addActive: function (evt) {
-      this.itemMoved(evt, 'Active')
-    },
-    addComplete: function (evt) {
-      this.itemMoved(evt, 'Complete')
-    },
-    saveBoardItem: async function (item) {
-      try {
-        const response = await axios.patch('https://whispering-cliffs-53295.herokuapp.com/board-item/' + item._id, {
-          state: item.state
-        }, {
-          headers: {
-            Authorization: 'Bearer ' + this.$store.getters.currentToken
-          }
-        })
-        console.log(response)
-      } catch (error) {
-        console.log(error.response)
-      }
     }
   },
   beforeMount () {
@@ -206,21 +139,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-
-.project-page {
-    margin-top: 20px;
-    margin-left: 30px;
-}
-
-.drag-column {
-  min-height: 30vh
-}
-
-.project-box {
-  border: 1px solid black;
-  border-radius: 5px;
-  padding: 5px;
-}
-</style>
